@@ -28,8 +28,7 @@ public class Rent_page {
 
         String[] films = new String[store.getItemCount()];
         for (int i = 0; i < store.getItemCount(); i++) {
-            films[i] = store.getItems()[i].getId() + " - " + store.getItems()[i].getTitle() +
-                    " [" + store.getItems()[i].getStatus() + "]";
+            films[i] = store.getItems()[i].getId() + " - " + store.getItems()[i].getTitle() + " [" + store.getItems()[i].getStatus() + "]";
         }
 
         JList<String> filmList = new JList<>(films);
@@ -47,46 +46,80 @@ public class Rent_page {
                 String[] parts = selected.split(" - ");
                 String selectedId = parts[0];
 
+
+                double rPrice = 0.0;
+                double bPrice = 0.0;
+                for (int i = 0; i < store.getItemCount(); i++) {
+                    if (store.getItems()[i].getId().equals(selectedId)) {
+
+                        if (store.getItems()[i] instanceof Movie) {
+                            Movie m = (Movie) store.getItems()[i];
+                            rPrice = m.getRentPrice();
+                            bPrice = m.getBuyPrice();
+                        }
+                    }
+                }
+
                 JPanel dialogPanel = new JPanel();
                 dialogPanel.setLayout(new BoxLayout(dialogPanel, BoxLayout.Y_AXIS));
                 dialogPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-                JLabel info = new JLabel("<html><b>" + selected + "</b><br>Do you want to Rent or Buy?</html>");
-                info.setAlignmentX(Component.CENTER_ALIGNMENT);
+                JLabel infoTitle = new JLabel(selected);
+                infoTitle.setFont(new Font("SansSerif", Font.BOLD, 14));
+                infoTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+                JLabel infoSub = new JLabel("Rent: " + rPrice + " Baht  |  Buy: " + bPrice + " Baht");
+                infoSub.setFont(new Font("SansSerif", Font.PLAIN, 12));
+                infoSub.setAlignmentX(Component.CENTER_ALIGNMENT);
 
                 JButton rentBtn = new JButton("RENT");
                 rentBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
                 rentBtn.setFont(actionFont);
 
+                final double finalRPrice = rPrice;
                 rentBtn.addActionListener(ev -> {
-                    boolean success = store.processRent(selectedId);
-                    if (success) {
-                        JOptionPane.showMessageDialog(frame, "You rented :\n" + selectedId, "Success", JOptionPane.INFORMATION_MESSAGE);
-                    } else {
-                        JOptionPane.showMessageDialog(frame, "Failed! Movie is already Rented or Sold.", "Error", JOptionPane.WARNING_MESSAGE);
+
+                    int confirm = JOptionPane.showConfirmDialog(frame, "Confirm renting this movie for " + finalRPrice + " Baht?", "Confirm Rent", JOptionPane.YES_NO_OPTION);
+
+                    if (confirm == JOptionPane.YES_OPTION) {
+                        boolean success = store.processRent(selectedId);
+                        if (success) {
+                            JOptionPane.showMessageDialog(frame, "Success! You rented " + selectedId + " for " + finalRPrice + " Baht.", "Receipt", JOptionPane.INFORMATION_MESSAGE);
+                        } else {
+                            JOptionPane.showMessageDialog(frame, "Failed! Movie is already Rented or Sold.", "Error", JOptionPane.WARNING_MESSAGE);
+                        }
+                        SwingUtilities.getWindowAncestor(rentBtn).dispose();
+                        frame.dispose();
+                        new Rent_page(store);
                     }
-                    SwingUtilities.getWindowAncestor(rentBtn).dispose();
-                    frame.dispose();
-                    new Rent_page(store);
                 });
 
                 JButton buyBtn = new JButton("BUY");
                 buyBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+
+                final double finalBPrice = bPrice;
                 buyBtn.addActionListener(ev -> {
-                    boolean success = store.processBuy(selectedId);
-                    if (success) {
-                        JOptionPane.showMessageDialog(frame, "You purchased:\n" + selectedId, "Purchase Complete", JOptionPane.INFORMATION_MESSAGE);
-                    } else {
-                        JOptionPane.showMessageDialog(frame, "Failed! Movie is already Rented or Sold.", "Error", JOptionPane.WARNING_MESSAGE);
+
+                    int confirm = JOptionPane.showConfirmDialog(frame, "Confirm buying this movie for " + finalBPrice + " Baht?", "Confirm Buy", JOptionPane.YES_NO_OPTION);
+
+                    if (confirm == JOptionPane.YES_OPTION) {
+                        boolean success = store.processBuy(selectedId);
+                        if (success) {
+                            JOptionPane.showMessageDialog(frame, "Success! You purchased " + selectedId + " for " + finalBPrice + " Baht.", "Receipt", JOptionPane.INFORMATION_MESSAGE);
+                        } else {
+                            JOptionPane.showMessageDialog(frame, "Failed! Movie is already Rented or Sold.", "Error", JOptionPane.WARNING_MESSAGE);
+                        }
+                        SwingUtilities.getWindowAncestor(buyBtn).dispose();
+                        frame.dispose();
+                        new Rent_page(store);
                     }
-                    SwingUtilities.getWindowAncestor(buyBtn).dispose();
-                    frame.dispose();
-                    new Rent_page(store);
                 });
 
-                dialogPanel.add(info);
-                dialogPanel.add(Box.createVerticalStrut(10));
+                dialogPanel.add(infoTitle);
+                dialogPanel.add(Box.createVerticalStrut(5));
+                dialogPanel.add(infoSub);
+                dialogPanel.add(Box.createVerticalStrut(15));
                 dialogPanel.add(rentBtn);
                 dialogPanel.add(Box.createVerticalStrut(8));
                 dialogPanel.add(buyBtn);

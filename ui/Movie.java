@@ -18,10 +18,12 @@ public class Movie extends Media implements ItemAction {
         return buyPrice;
     }
 
+    @Override
     public String showDetail() {
         return "ID: " + getId() + " | Title: " + getTitle() + " | Status: " + getStatus();
     }
 
+    @Override
     public boolean rentItem() {
         if (getStatus().equals("Available")) {
             setStatus("Rented");
@@ -30,6 +32,7 @@ public class Movie extends Media implements ItemAction {
         return false;
     }
 
+    @Override
     public boolean returnItem() {
         if (getStatus().equals("Rented")) {
             setStatus("Available");
@@ -38,6 +41,7 @@ public class Movie extends Media implements ItemAction {
         return false;
     }
 
+    @Override
     public boolean buyItem() {
         if (getStatus().equals("Available")) {
             setStatus("Sold");
